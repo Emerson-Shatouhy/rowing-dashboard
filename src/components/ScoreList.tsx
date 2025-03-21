@@ -1,59 +1,113 @@
 'use client'
 import { Scores } from '@/lib/types/scores';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+
+import { columns } from "./columns"
+import { DataTable } from './DataTable';
+
 
 interface ScoreListProps {
     scores: Scores[];
 }
 
-const formatTime = (ms: number | null) => {
-    if (!ms) return '';
-    const minutes = Math.floor(ms / 60000);
-    const seconds = ((ms % 60000) / 1000).toFixed(1);
-    return `${minutes}:${Number(seconds) < 10 ? '0' : ''}${seconds}`;
-};
-
-const formatSplits = (splits: [number]) => {
-    if (!splits[0]) return '';
-    return splits.map(split => formatTime(split)).join(' / ');
-};
-
 export default function ScoreList({ scores }: ScoreListProps) {
+    // Process workout dates and types only once for the initial render
     const uniqueDates = Array.from(new Set(scores.map(score =>
         new Date(score.date).toLocaleDateString()
     ))).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
-    const [selectedDate, setSelectedDate] = useState<string>(uniqueDates[0] || '');
+    const uniqueWorkoutTypes = Array.from(new Set(scores.map(score => score.type.name)));
 
+    // State for filters
+    const [selectedDate, setSelectedDate] = useState<string>('');
+    const [selectedWorkoutType, setSelectedWorkoutType] = useState<string>('');
+
+    // Initialize default values after we've extracted unique dates/types
+    useEffect(() => {
+        if (uniqueDates.length > 0 && selectedDate === '') {
+            setSelectedDate(uniqueDates[0]);
+        }
+        if (uniqueWorkoutTypes.length > 0 && selectedWorkoutType === '') {
+            setSelectedWorkoutType(uniqueWorkoutTypes[0]);
+        }
+    }, [uniqueDates, uniqueWorkoutTypes, selectedDate, selectedWorkoutType]);
+
+    // Filter scores based on selection
     const filteredScores = scores.filter(score =>
-        new Date(score.date).toLocaleDateString() === selectedDate
+        (selectedDate === '' || new Date(score.date).toLocaleDateString() === selectedDate) &&
+        (selectedWorkoutType === '' || score.type.name === selectedWorkoutType)
     );
 
-    filteredScores.sort((a, b) => {
-        if (!a.totalTime) return 1;
-        if (!b.totalTime) return -1;
-        return a.totalTime - b.totalTime;
-    });
+
+    // Handle date selection change
+    const handleDateChange = (value: string) => {
+        setSelectedDate(value);
+    };
+
+    // Handle workout type selection change  
+    const handleWorkoutTypeChange = (value: string) => {
+        setSelectedWorkoutType(value);
+    };
+
+    const testScores: Scores[] = [
+        {
+            id: '61d06297-44c5-4cd9-9759-edf6921be8a9',
+            date: new Date(),
+            type: {
+                id: 1,
+                name: "Row",
+                description: "Rowing workout"
+            },
+            athlete: {
+                id: '61d06297-44c5-4cd9-9759-edf6921be8a9',
+                firstName: "John",
+                lastName: "Doe",
+                coxswain: false,
+                personalRecords: "test"
+            },
+            totalTime: 1000,
+            splits: [100],
+            spm: 20,
+            weight: 200,
+            weightAdjusted: 200,
+            averageWatts: 200,
+        },
+        {
+            id: '61d06297-44c5-4cd9-9759-edf6921be8a9',
+            date: new Date(),
+            type: {
+                id: 1,
+                name: "Row",
+                description: "Rowing workout"
+            },
+            athlete: {
+                id: '61d06297-44c5-4cd9-9759-edf6921be8a9',
+                firstName: "Not",
+                lastName: "Rower",
+                coxswain: false,
+                personalRecords: "test"
+            },
+            totalTime: 1000,
+            splits: [100],
+            spm: 20,
+            weight: 200,
+            weightAdjusted: 200,
+            averageWatts: 200,
+        }
+    ];
 
     return (
-        <div className="w-full">
-            <div className="mb-4">
-                <Select onValueChange={setSelectedDate} defaultValue={uniqueDates[0]}>
+        <div className="w-full" >
+            <div className="mb-4 flex gap-4">
+                <Select onValueChange={handleDateChange} value={selectedDate}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select Date" />
                     </SelectTrigger>
@@ -65,43 +119,64 @@ export default function ScoreList({ scores }: ScoreListProps) {
                         ))}
                     </SelectContent>
                 </Select>
+                <Select onValueChange={handleWorkoutTypeChange} value={selectedWorkoutType}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select Workout" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {uniqueWorkoutTypes.map(type => (
+                            <SelectItem key={type} value={type}>
+                                {type}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
-            <Table>
-                <TableHeader className="bg-slate-100">
-                    <TableRow>
-                        <TableHead className="text-center bg-slate-100">#</TableHead>
-                        <TableHead className="text-center bg-slate-100">Athlete</TableHead>
-                        <TableHead className="text-center bg-slate-100">Weight(lbs)</TableHead>
-                        <TableHead className="text-center bg-slate-100">Total Time</TableHead>
-                        <TableHead className="text-center bg-slate-100">Weight Adjusted Time</TableHead>
-                        <TableHead className="text-center bg-slate-100">Splits</TableHead>
-                        <TableHead className="text-center bg-slate-100">SPM</TableHead>
-                        <TableHead className="text-center bg-slate-100">Watts</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {filteredScores.map((score, index) => (
-                        <TableRow
-                            key={score.id.toString()}
-                            className={index % 2 === 0 ? 'bg-white' : 'bg-slate-50'}
-                        >
-                            <TableCell className={`text-center`}>
-                                {index + 1}
-                            </TableCell>
-                            <TableCell className={`text-center`}>
+            <div className="rounded-md border">
+                {/* <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id}>
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
+                                    </TableHead>
+                                ))}
+                            </TableRow>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row, i) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                    className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table> */}
+                <DataTable columns={columns} data={testScores} />
+            </div>
 
-                                {score.athlete.firstName} {score.athlete.lastName}
-                            </TableCell>
-                            <TableCell className="text-center">{!score.totalTime ? 'DNF' : score.weight}</TableCell>
-                            <TableCell className="text-center">{!score.totalTime ? 'DNF' : formatTime(score.totalTime)}</TableCell>
-                            <TableCell className="text-center">{!score.totalTime ? 'DNF' : formatTime(score.weightAdjusted)}</TableCell>
-                            <TableCell className="text-center">{!score.totalTime ? 'DNF' : formatSplits(score.splits)}</TableCell>
-                            <TableCell className="text-center">{!score.totalTime ? 'DNF' : score.spm}</TableCell>
-                            <TableCell className="text-center">{!score.totalTime ? 'DNF' : score.averageWatts}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
+        </div >
     );
 }

@@ -82,6 +82,7 @@ export default function FileUpload() {
                 onChange={handleFileUpload}
                 className="p-2 border rounded"
             />
+
             {status && (
                 <div className="mt-2 p-2 bg-gray-100 rounded">
                     {status}

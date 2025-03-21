@@ -22,6 +22,10 @@ const navItems = [
 export function Navbar() {
     const pathname = usePathname()
 
+    function handleClick() {
+        console.log('New Test')
+    }
+
     return (
         <header className="flex p-4 border-b border-gray-200 w-full">
             <div className="flex flex-row justify-between w-full" >
@@ -46,10 +50,12 @@ export function Navbar() {
                     </nav>
                 </div>
 
-                <Button size="sm" className="h-8">
+                <Button size="sm" className="h-8"
+                    onClick={handleClick}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Test
                 </Button>
+
             </div>
 
 
