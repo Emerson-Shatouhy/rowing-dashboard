@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { Scores } from '@/lib/types/scores';
 import ScoreList from '../components/ScoreList';
+// import FileUpload from '@/components/FileUpload';
 
 export default async function Home() {
   const client = await createClient();
