@@ -1,5 +1,4 @@
 import { createClient } from '@/utils/supabase/server';
-import FileUpload from '../components/FileUpload';
 import { Scores } from '@/lib/types/scores';
 import ScoreList from '../components/ScoreList';
 
@@ -8,7 +7,7 @@ export default async function Home() {
   const { data: scores, error } = await client.from('scores')
     .select('*, athlete:athlete(*),type:type(*)'
 
-    ) as { data: Scores[] | null, error: any };
+    ) as { data: Scores[] | null, error: unknown };
   if (error) {
     console.error('Error fetching scores:', error);
     return <div>Error fetching scores</div>;

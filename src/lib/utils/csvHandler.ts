@@ -88,6 +88,7 @@ export async function processCSVData(csvData: CsvRow[], testDate: Date) {
                 .single();
 
         } catch (error) {
+            console.error('Error processing row:', error);
             continue;
         }
     }

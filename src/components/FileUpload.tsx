@@ -55,9 +55,9 @@ export default function FileUpload() {
                 await processCSVData(rows, new Date(testDate));
                 setStatus('File processed successfully!');
             }
-        } catch (error) {
+        } catch (error: unknown | null) {
             console.error('Error processing file:', error);
-            setStatus(`Error: ${error.message}`);
+            // setStatus(`Error: ${error.message}`);
         }
     };
 
