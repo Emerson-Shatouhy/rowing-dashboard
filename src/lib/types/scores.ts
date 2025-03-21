@@ -1,18 +1,18 @@
 import { UUID } from "crypto";
 import { Athlete } from "./athlete";
 
-// Scores Type
+// Scores Type - all times in milliseconds
 export type Scores = {
     id: UUID,
     athlete: Athlete,
     date: Date,
     type: Type,
-    totalTime: number,
-    splits: [number],
+    totalTime: number,      // milliseconds
+    splits: [number],       // milliseconds
     spm: number,
     averageWatts: number,
     weight: number,
-    weightAdjusted: number,
+    weightAdjusted: number, // milliseconds
 }
 
 export type Type = {
