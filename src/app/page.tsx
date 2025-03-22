@@ -1,9 +1,16 @@
 import { createClient } from '@/utils/supabase/server';
 import { Scores } from '@/lib/types/scores';
 import ScoreList from '../components/ScoreList';
+import { checkUserClient } from '@/utils/auth/auth';
+import { redirect } from 'next/navigation';
 // import FileUpload from '@/components/FileUpload';
 
 export default async function Home() {
+  const user = await checkUserClient()
+  if ('error' in user) {
+    redirect('/login')
+  }
+
   const client = await createClient();
   const { data: scores, error } = await client.from('scores')
     .select('*, athlete:athlete(*),type:type(*)'

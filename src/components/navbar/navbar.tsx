@@ -1,10 +1,14 @@
-"use client"
-
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { BarChart2, Award, Plus } from "lucide-react"
+import { BarChart2, Award } from "lucide-react"
+import { checkUserClient } from "@/utils/auth/auth"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const navItems = [
     {
@@ -19,12 +23,13 @@ const navItems = [
     },
 ]
 
-export function Navbar() {
-    const pathname = usePathname()
-
-    function handleClick() {
-        console.log('New Test')
+export async function Navbar() {
+    const user = await checkUserClient()
+    if ('user' in user) {
+    } else {
+        console.log('No user')
     }
+
 
     return (
         <header className="flex p-4 border-b border-gray-200 w-full">
@@ -40,7 +45,7 @@ export function Navbar() {
                                 href={item.href}
                                 className={cn(
                                     "flex items-center transition-colors hover:text-foreground/80",
-                                    pathname === item.href ? "text-foreground" : "text-foreground/60",
+
                                 )}
                             >
                                 <item.icon className="mr-2 h-4 w-4" />
@@ -49,11 +54,24 @@ export function Navbar() {
                         ))}
                     </nav>
                 </div>
-                <Button size="sm" className="h-8"
+                {/* <Button size="sm" className="h-8"
                     onClick={handleClick}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Test
-                </Button>
+                </Button> */}
+                {'user' in user && (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>{user.user.user_metadata.full_name}</DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem>My Scores</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
+                                <a href="/signout">Sign Out</a>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                )}
             </div>
         </header>
     )
