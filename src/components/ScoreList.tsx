@@ -12,7 +12,6 @@ import { useState, useEffect } from 'react';
 
 import { columns } from "./columns"
 import { DataTable } from './DataTable';
-import { DataTableDemo } from './Table';
 
 
 interface ScoreListProps {
@@ -57,53 +56,6 @@ export default function ScoreList({ scores }: ScoreListProps) {
     const handleWorkoutTypeChange = (value: string) => {
         setSelectedWorkoutType(value);
     };
-
-    const testScores: Scores[] = [
-        {
-            id: '61d06297-44c5-4cd9-9759-edf6921be8a9',
-            date: new Date(),
-            type: {
-                id: 1,
-                name: "Row",
-                description: "Rowing workout"
-            },
-            athlete: {
-                id: '61d06297-44c5-4cd9-9759-edf6921be8a9',
-                firstName: "John",
-                lastName: "Doe",
-                coxswain: false,
-                personalRecords: "test"
-            },
-            totalTime: 1000,
-            splits: [100],
-            spm: 20,
-            weight: 200,
-            weightAdjusted: 200,
-            averageWatts: 200,
-        },
-        {
-            id: '61d06297-44c5-4cd9-9759-edf6921be8a9',
-            date: new Date(),
-            type: {
-                id: 1,
-                name: "Row",
-                description: "Rowing workout"
-            },
-            athlete: {
-                id: '61d06297-44c5-4cd9-9759-edf6921be8a9',
-                firstName: "Not",
-                lastName: "Rower",
-                coxswain: false,
-                personalRecords: "test"
-            },
-            totalTime: 1000,
-            splits: [100],
-            spm: 20,
-            weight: 200,
-            weightAdjusted: 200,
-            averageWatts: 200,
-        }
-    ];
 
     return (
         <div className="w-full" >

@@ -16,16 +16,6 @@ const formatSplits = (splits: [number]) => {
     return splits.map(split => formatTime(split)).join(' / ');
 };
 
-const calcAverageSplit = (splits: [number]) => {
-    if (!splits || !splits.length || !splits[0]) return null;
-    const total = splits.reduce((acc, split) => acc + split, 0);
-    console.log('total', total);
-    const average = total / splits.length;
-    console.log('average', average);
-    return formatTime(average);
-}
-
-
 export const columns: ColumnDef<Scores>[] = [
     {
         id: "name",
