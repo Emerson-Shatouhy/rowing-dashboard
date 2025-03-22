@@ -49,16 +49,12 @@ export function Navbar() {
                         ))}
                     </nav>
                 </div>
-
-
-                {/* <Button size="sm" className="h-8"
+                <Button size="sm" className="h-8"
                     onClick={handleClick}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Test
-                </Button> */}
+                </Button>
             </div>
-            <button onClick={() => alert("HIT")}>Click Me</button>
-
         </header>
     )
 }
