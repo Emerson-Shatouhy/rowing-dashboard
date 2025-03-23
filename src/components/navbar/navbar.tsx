@@ -63,7 +63,9 @@ export async function Navbar() {
                     <DropdownMenu>
                         <DropdownMenuTrigger>{user.user.user_metadata.full_name}</DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuItem>My Scores</DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <a href="/myScores">My Scores</a>
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>
                                 <a href="/signout">Sign Out</a>

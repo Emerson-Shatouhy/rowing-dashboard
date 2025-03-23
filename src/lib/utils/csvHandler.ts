@@ -14,6 +14,11 @@ interface CsvRow {
     '2nd 500': string;
     '3rd 500': string;
     '4th 500': string;
+    // '1st 1000': string;
+    // '2nd 1000': string;
+    // '3rd 1000': string;
+    // '4th 1000': string;
+    // '5th 1000': string;
 }
 
 export async function processCSVData(csvData: CsvRow[], testDate: Date) {
@@ -74,6 +79,11 @@ export async function processCSVData(csvData: CsvRow[], testDate: Date) {
                     parseTimeToSeconds(row['2nd 500']),
                     parseTimeToSeconds(row['3rd 500']),
                     parseTimeToSeconds(row['4th 500'])
+                    // parseTimeToSeconds(row['1st 1000']),
+                    // parseTimeToSeconds(row['2nd 1000']),
+                    // parseTimeToSeconds(row['3rd 1000']),
+                    // parseTimeToSeconds(row['4th 1000']),
+                    // parseTimeToSeconds(row['5th 1000'])
                 ],
                 spm: parseInt(row['SPM']),
                 averageWatts: parseFloat(row['Avg Watt']),

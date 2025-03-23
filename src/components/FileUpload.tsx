@@ -1,11 +1,13 @@
 'use client';
 
+import { fetchSheetData } from '@/utils/ingestor/googleSheets';
 import { processCSVData } from '../lib/utils/csvHandler';
 import { useState } from 'react';
 
 export default function FileUpload() {
     const [status, setStatus] = useState<string>('');
     const [testDate, setTestDate] = useState<string>('');
+    const [sheetUrl, setSheetUrl] = useState<string>('');
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
@@ -39,6 +41,11 @@ export default function FileUpload() {
                         '2nd 500': values[11],
                         '3rd 500': values[12],
                         '4th 500': values[13]?.replace('\r', '')
+                        // '1st 1000': values[10],
+                        // '2nd 1000': values[11],
+                        // '3rd 1000': values[12],
+                        // '4th 1000': values[13],
+                        // '5th 1000': values[14]
                     };
                 });
 
@@ -61,11 +68,35 @@ export default function FileUpload() {
         }
     };
 
+    const handleGoogleSheet = async () => {
+        try {
+            if (!sheetUrl) {
+                setStatus('Please enter a Google Sheet URL');
+                return;
+            }
+
+            setStatus('Processing Google Sheet...');
+
+            const spreadsheetId = sheetUrl.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+            if (!spreadsheetId) {
+                setStatus('Invalid Google Sheet URL');
+                return;
+            }
+
+            const { formattedData, testDate } = await fetchSheetData(spreadsheetId);
+            setStatus(`Successfully processed ${formattedData.length} rows from sheet for date ${testDate.toLocaleDateString()}`);
+
+        } catch (error) {
+            console.error('Error processing Google Sheet:', error);
+            setStatus('Error processing Google Sheet');
+        }
+    };
+
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
                 <label htmlFor="test-date" className="text-sm font-medium">
-                    Test Date
+                    Test Date (Only needed for CSV files)
                 </label>
                 <input
                     id="test-date"
@@ -82,7 +113,26 @@ export default function FileUpload() {
                 onChange={handleFileUpload}
                 className="p-2 border rounded"
             />
-
+            <div className="flex flex-col gap-2">
+                <label htmlFor="sheet-url" className="text-sm font-medium">
+                    Google Sheet URL (optional)
+                </label>
+                <input
+                    id="sheet-url"
+                    type="text"
+                    value={sheetUrl}
+                    onChange={(e) => setSheetUrl(e.target.value)}
+                    placeholder="https://docs.google.com/spreadsheets/d/..."
+                    className="p-2 border rounded"
+                />
+                <button
+                    onClick={handleGoogleSheet}
+                    className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    disabled={!sheetUrl}
+                >
+                    Process Google Sheet
+                </button>
+            </div>
             {status && (
                 <div className="mt-2 p-2 bg-gray-100 rounded">
                     {status}

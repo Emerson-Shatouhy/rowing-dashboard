@@ -1,9 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { Scores } from '@/lib/types/scores';
-import ScoreList from '../components/ScoreList';
+import ScoreList from '../components/ScoreTables/ScoreList';
 import { checkUserClient } from '@/utils/auth/auth';
 import { redirect } from 'next/navigation';
-// import FileUpload from '@/components/FileUpload';
 
 export default async function Home() {
   const user = await checkUserClient()
@@ -23,7 +22,6 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col w-full gap-4 p-4">
-      {/* <FileUpload /> */}
       <ScoreList scores={scores || []} />
     </div>
   );

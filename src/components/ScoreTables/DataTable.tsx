@@ -24,15 +24,19 @@ import {
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    onSelectionChange?: (rows: TData[]) => void
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    onSelectionChange,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = React.useState({})
+
 
     const table = useReactTable({
         data,
@@ -42,13 +46,21 @@ export function DataTable<TData, TValue>({
         getSortedRowModel: getSortedRowModel(),
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
+        onRowSelectionChange: setRowSelection,
         onColumnVisibilityChange: setColumnVisibility,
         state: {
             sorting,
             columnFilters,
             columnVisibility,
+            rowSelection,
+
         },
     })
+
+    React.useEffect(() => {
+        const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
+        onSelectionChange?.(selectedRows);
+    }, [rowSelection]);
 
     return (
         <div>
