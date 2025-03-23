@@ -75,10 +75,10 @@ export default function ScoreList({ scores }: ScoreListProps) {
 
     return (
         <div className="w-full" >
-            <div className="flex flex-col rounded-md border mb-4 gap-4 p-4 bg-gray-100">
+            <div className="flex flex-col rounded-md border mb-4 gap-4 p-4 bg-gray-200">
                 <div>
                     <div className="text-xl font-semibold">Test Selection</div>
-                    <div className='text-sm text-gray-500'>
+                    <div className='text-sm text-gray-700'>
                         Select workout type and date
                     </div>
                 </div>

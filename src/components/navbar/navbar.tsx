@@ -32,7 +32,7 @@ export async function Navbar() {
 
 
     return (
-        <header className="flex p-4 border-b border-gray-200 w-full">
+        <header className="flex p-4 border-b border-red-900 w-full bg-red-800 opacity-89 text-white">
             <div className="flex flex-row justify-between w-full" >
                 <div className="flex items-center space-x-4">
                     <Link href="/" className="font-bold text-lg">

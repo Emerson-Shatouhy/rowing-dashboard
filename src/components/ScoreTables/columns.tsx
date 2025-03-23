@@ -79,14 +79,20 @@ export const columns: ColumnDef<Scores>[] = [
                 }
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
+                className="border-gray-400"
+
             />
         ),
         cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
+            <div className="text-center">
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                    className="border-gray-400"
+                />
+            </div>
+
         ),
     },
     {
