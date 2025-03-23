@@ -40,7 +40,7 @@ export default function ScoreList({ scores }: ScoreListProps) {
         if (uniqueWorkoutTypes.length > 0) {
             setSelectedWorkoutType(uniqueWorkoutTypes[0]);
         }
-    }, [uniqueWorkoutTypes]);
+    }, []);
 
     // Update selected date when workout type changes, but only if current date is invalid
     useEffect(() => {
@@ -49,7 +49,7 @@ export default function ScoreList({ scores }: ScoreListProps) {
                 setSelectedDate(filteredDates[0]);
             }
         }
-    }, [selectedWorkoutType, filteredDates, selectedDate]);
+    }, [selectedWorkoutType, filteredDates]);
 
     // Filter scores based on selection
     const filteredScores = scores.filter(score =>

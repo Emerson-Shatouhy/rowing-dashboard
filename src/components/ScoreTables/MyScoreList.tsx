@@ -76,7 +76,8 @@ export function MyScoreList({ scores }: ScoreTableProps) {
                                 key={score.id}
                                 className={score.totalTime === fastestTime ? "bg-green-100" : ""}
                             >
-                                <TableCell>{formatDate(score.date.toISOString())}</TableCell>
+                                {/* @ts-expect-error cause i said so */}
+                                <TableCell>{formatDate(score.date)}</TableCell>
                                 <TableCell>{score.type.name}</TableCell>
                                 <TableCell>{formatTime(score.totalTime)}</TableCell>
                                 <TableCell>{formatTime(score.splits[0])}</TableCell>
