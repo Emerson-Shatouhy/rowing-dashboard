@@ -1,6 +1,5 @@
 'use client'
 import { Scores } from '@/lib/types/scores';
-
 import {
     Card,
     CardContent,
@@ -8,63 +7,13 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Activity, Timer, Weight } from 'lucide-react';
-
+import { formatTime, calculateAverageSplit } from '@/utils/time/time';
 
 interface StatsProps {
     scores: Scores[];
 }
 
 export default function Stats({ scores }: StatsProps) {
-    const formatTime = (ms: number) => {
-        const minutes = Math.floor(ms / 60000);
-        const seconds = ((ms % 60000) / 1000).toFixed(1);
-        return `${minutes}:${Number(seconds) < 10 ? '0' : ''}${seconds}`;
-    };
-
-    const calculateAverageSplit = (splits: string[] | string) => {
-        // Check if splits exist and have valid format
-        if (!splits || !splits.length) return null;
-
-        // Handle different possible formats of splits
-        let validSplits = [];
-
-        // If splits is an array of numbers or strings that can be converted to numbers
-        if (Array.isArray(splits)) {
-            validSplits = splits
-                .map(split => {
-                    // Convert string to number if needed
-                    const numericSplit = typeof split === 'string' ? parseInt(split, 10) : split;
-                    return isNaN(numericSplit) ? null : numericSplit;
-                })
-                .filter(split => split != null);
-        }
-        // If splits is a string (possibly concatenated values)
-        else if (typeof splits === 'string' && splits.length > 0) {
-            // Try to split the string into numeric values
-            // This is a fallback and would need to be adjusted based on actual data format
-            try {
-                // Assuming a fixed length format (e.g., 6 digits per split)
-                const splitLength = 6;
-                for (let i = 0; i < splits.length; i += splitLength) {
-                    if (i + splitLength <= splits.length) {
-                        const splitValue = parseInt(splits.substring(i, i + splitLength), 10);
-                        if (!isNaN(splitValue)) {
-                            validSplits.push(splitValue);
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error('Error parsing splits string:', e);
-            }
-        }
-
-        if (validSplits.length === 0) return null;
-
-        // Sum all the splits and divide by count
-        const sum = validSplits.reduce((total, split) => total + split, 0);
-        return sum / validSplits.length;
-    };
-
     const calculateAverages = () => {
         if (scores.length === 0) return { avgTime: "0:00.0", avgWAdj: "0:00.0", avgSplit: "0:00.0", avgWeight: 0, avgWatts: 0 };
 
@@ -96,8 +45,7 @@ export default function Stats({ scores }: StatsProps) {
             }
         });
 
-        // Calculate average split using the dedicated function
-        // @ts-expect-error cause i said so
+        // Calculate average split using the shared utility function
         const avgSplitMs = calculateAverageSplit(allSplits);
         const avgSplit = avgSplitMs ? formatTime(avgSplitMs) : "0:00.0";
 

@@ -22,7 +22,7 @@ function parseSheetDate(sheetName: string): Date {
 
 export async function fetchSheetData(spreadsheetId: string) {
     try {
-        const doc = new GoogleSpreadsheet(spreadsheetId, { apiKey: 'a' });
+        const doc = new GoogleSpreadsheet(spreadsheetId, { apiKey: 'AIzaSyDLDgpWxDN0rD3rX9-SdA1uNZ6yjZnpzsg' });
         await doc.loadInfo();
         const sheet = doc.sheetsByIndex[13];
 

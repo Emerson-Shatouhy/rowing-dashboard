@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/client';
+import { parseTimeToMilliseconds } from '@/utils/time/time';
 
 interface CsvRow {
     'Last Name': string;
@@ -73,22 +74,22 @@ export async function processCSVData(csvData: CsvRow[], testDate: Date) {
                 athlete: athleteId,
                 date: testDate.toISOString(),
                 type: 1,
-                totalTime: parseTimeToSeconds(row['Time']),
+                totalTime: parseTimeToMilliseconds(row['Time']),
                 splits: [
-                    parseTimeToSeconds(row['1st 500']),
-                    parseTimeToSeconds(row['2nd 500']),
-                    parseTimeToSeconds(row['3rd 500']),
-                    parseTimeToSeconds(row['4th 500'])
-                    // parseTimeToSeconds(row['1st 1000']),
-                    // parseTimeToSeconds(row['2nd 1000']),
-                    // parseTimeToSeconds(row['3rd 1000']),
-                    // parseTimeToSeconds(row['4th 1000']),
-                    // parseTimeToSeconds(row['5th 1000'])
+                    parseTimeToMilliseconds(row['1st 500']),
+                    parseTimeToMilliseconds(row['2nd 500']),
+                    parseTimeToMilliseconds(row['3rd 500']),
+                    parseTimeToMilliseconds(row['4th 500'])
+                    // parseTimeToMilliseconds(row['1st 1000']),
+                    // parseTimeToMilliseconds(row['2nd 1000']),
+                    // parseTimeToMilliseconds(row['3rd 1000']),
+                    // parseTimeToMilliseconds(row['4th 1000']),
+                    // parseTimeToMilliseconds(row['5th 1000'])
                 ],
                 spm: parseInt(row['SPM']),
                 averageWatts: parseFloat(row['Avg Watt']),
                 weight: parseFloat(row['Weight']),
-                weightAdjusted: parseTimeToSeconds(row['Weight Adjusted Time'])
+                weightAdjusted: parseTimeToMilliseconds(row['Weight Adjusted Time'])
             };
 
             await client
@@ -102,11 +103,4 @@ export async function processCSVData(csvData: CsvRow[], testDate: Date) {
             continue;
         }
     }
-}
-
-function parseTimeToSeconds(timeStr: string): number {
-    const [minutes, secondsWithDecimal] = timeStr.split(':');
-    const seconds = parseFloat(secondsWithDecimal || '0');
-    // Convert to milliseconds: (minutes * 60 + seconds) * 1000
-    return Math.round((parseInt(minutes || '0') * 60 + seconds) * 1000);
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import * as React from "react"
 import {
@@ -10,6 +11,7 @@ import {
     getFilteredRowModel,
     getSortedRowModel,
     useReactTable,
+    Row,
 } from "@tanstack/react-table"
 
 import {
@@ -20,6 +22,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { ExpandedRow } from "./ExpandedRow"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -36,11 +39,34 @@ export function DataTable<TData, TValue>({
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
+    const [expandedRows, setExpandedRows] = React.useState<Set<string>>(new Set())
 
+    // Modify the columns to add row toggling functionality
+    const columnsWithExpand = React.useMemo(() => {
+        return columns.map(column => {
+            // Check if it's the expand column
+            if (column.id === 'expand') {
+                return {
+                    ...column,
+                    cell: ({ row }: { row: Row<TData> }) => {
+                        const originalCell = column.cell as any;
+                        // Call the original cell renderer with toggle functionality
+                        return originalCell({
+                            row: {
+                                ...row,
+                                toggleExpanded: () => handleRowClick(row.id)
+                            }
+                        });
+                    }
+                };
+            }
+            return column;
+        });
+    }, [columns]);
 
     const table = useReactTable({
         data,
-        columns,
+        columns: columnsWithExpand,
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
@@ -53,14 +79,39 @@ export function DataTable<TData, TValue>({
             columnFilters,
             columnVisibility,
             rowSelection,
-
         },
     })
 
+    // Handle row expansion toggle
+    const handleRowClick = (rowId: string) => {
+        setExpandedRows((prev) => {
+            const newExpandedRows = new Set(prev)
+            if (newExpandedRows.has(rowId)) {
+                newExpandedRows.delete(rowId)
+            } else {
+                newExpandedRows.add(rowId)
+            }
+            return newExpandedRows
+        })
+    }
+
     React.useEffect(() => {
-        const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
-        onSelectionChange?.(selectedRows);
-    }, [rowSelection]);
+        const selectedRows = table.getSelectedRowModel().rows.map(row => row.original)
+        onSelectionChange?.(selectedRows)
+    }, [rowSelection])
+
+    React.useEffect(() => {
+        table.getRowModel().rows.forEach((row: Row<any>) => {
+            Object.defineProperty(row, 'getIsExpanded', {
+                value: () => expandedRows.has(row.id),
+                configurable: true
+            });
+        });
+    }, [expandedRows, table]);
+
+    React.useEffect(() => {
+        setExpandedRows(new Set());
+    }, [data]);
 
     return (
         <div>
@@ -86,20 +137,36 @@ export function DataTable<TData, TValue>({
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row, i) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                    className={i % 2 === 0 ? 'bg-white' : 'bg-gray-200'}
+                            table.getRowModel().rows.map((row, i) => {
+                                const isExpanded = expandedRows.has(row.id)
+                                // Get athlete data from the row
+                                const rowData = row.original as any;
+                                const athleteName = rowData?.athlete ?
+                                    `${rowData.athlete.firstName} ${rowData.athlete.lastName}` :
+                                    "Athlete";
 
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
+                                return (
+                                    <React.Fragment key={row.id}>
+                                        <TableRow
+                                            data-state={row.getIsSelected() && "selected"}
+                                            className={i % 2 === 0 ? 'bg-white' : 'bg-gray-200'}
+                                        >
+                                            {row.getVisibleCells().map((cell) => (
+                                                <TableCell key={cell.id}>
+                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                        {isExpanded && (
+                                            <ExpandedRow
+                                                rowData={rowData}
+                                                athleteName={athleteName}
+                                                columnsLength={columns.length}
+                                            />
+                                        )}
+                                    </React.Fragment>
+                                )
+                            })
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
