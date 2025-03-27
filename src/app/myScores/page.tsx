@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { Scores } from '@/lib/types/scores';
-import { checkUserClient } from '@/utils/auth/auth';
+import { checkUserClient, getSignedInAthlete } from '@/utils/auth/auth';
 import { redirect } from 'next/navigation';
 import { MyScoreList } from '@/components/ScoreTables/MyScoreList';
 
@@ -11,24 +11,14 @@ export default async function MyScores() {
     }
     const client = await createClient();
 
-    // First, get the athlete's ID
-    const { data: athleteData, error: athleteError } = await client
-        .from('athletes')
-        .select('id')
-        .eq('firstName', 'Emerson')
-        .eq('lastName', 'Shatouhy')
-        .single();
-
-    if (athleteError) {
-        console.error('Error fetching athlete:', athleteError);
-        return;
-    }
+    const athleteData = await getSignedInAthlete()
 
     // Then use that ID to get all their scores/workouts
-    if (athleteData) {
+    if (athleteData && 'id' in athleteData) {
         const { data: scores, error: scoresError } = await client
             .from('scores')
             .select('*, type:type(*)')
+
             .eq('athlete', athleteData.id);
 
         if (scoresError) {

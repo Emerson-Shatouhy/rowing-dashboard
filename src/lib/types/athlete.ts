@@ -6,5 +6,13 @@ export type Athlete = {
     firstName: string,
     lastName: string,
     coxswain: boolean,
-    personalRecords: string
+    personalRecords: string,
+    side: Side,
+    seasons: string[]
+}
+
+export enum Side {
+    PORT = 'port',
+    STARBOARD = 'starboard',
+    BOTH = 'both'
 }

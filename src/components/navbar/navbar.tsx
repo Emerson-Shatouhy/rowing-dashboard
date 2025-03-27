@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { BarChart2, Award } from "lucide-react"
-import { checkUserClient } from "@/utils/auth/auth"
+import { checkUserClient, getSignedInAthlete } from "@/utils/auth/auth"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Athlete } from "@/lib/types/athlete"
 
 const navItems = [
     {
@@ -25,7 +26,15 @@ const navItems = [
 
 export async function Navbar() {
     const user = await checkUserClient()
+    const athleteResponse = await getSignedInAthlete()
+    if ('error' in athleteResponse) {
+        console.error('Failed to fetch athlete data:', athleteResponse.error)
+        return null
+    }
+    const athleteData: Athlete = athleteResponse
+
     if ('user' in user) {
+
     } else {
         console.log('No user')
     }
@@ -54,26 +63,35 @@ export async function Navbar() {
                         ))}
                     </nav>
                 </div>
-                {/* <Button size="sm" className="h-8"
-                    onClick={handleClick}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Test
-                </Button> */}
-                {'user' in user && (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>{user.user.user_metadata.full_name}</DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem>
-                                <a href="/myScores">My Scores</a>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <a href="/signout">Sign Out</a>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                <div className="flex items-center space-x-4">
+                    {'user' in user && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>{user.user.user_metadata.full_name}</DropdownMenuTrigger>
+                            <DropdownMenuContent>
 
-                )}
+                                {athleteData.coxswain && (
+                                    <>
+                                        <DropdownMenuItem>
+                                            <a href="/new-test">Manage Test</a>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <a href="/roster">Manage Rosters</a>
+                                        </DropdownMenuItem>
+                                    </>
+                                ) || (
+                                        <DropdownMenuItem>
+                                            <a href="/my-scores">My Scores</a>
+                                        </DropdownMenuItem>
+                                    )}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    <a href="/signout">Sign Out</a>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+
+                </div>
             </div>
         </header>
     )
