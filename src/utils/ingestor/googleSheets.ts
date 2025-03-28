@@ -20,17 +20,45 @@ function parseSheetDate(sheetName: string): Date {
     return new Date(year, month, day);
 }
 
-export async function fetchSheetData(spreadsheetId: string) {
+export async function fetchSheetTabs(spreadsheetId: string) {
     try {
+        console.log('Fetching sheet tabs for spreadsheet ID:', spreadsheetId);
+        const doc = new GoogleSpreadsheet(spreadsheetId, { apiKey: "AIzaSyDLDgpWxDN0rD3rX9-SdA1uNZ6yjZnpzsg" });
+        await doc.loadInfo();
+        console.log('Loaded spreadsheet info:', doc.title);
+
+        // Retrieve all sheet titles
+        const tabs = doc.sheetsByIndex.map(sheet => sheet.title);
+        console.log('Retrieved sheet tabs:', tabs);
+        return { tabs };
+    } catch (error) {
+        console.error('Error fetching sheet tabs:', error);
+        throw new Error(`Failed to fetch sheet tabs for spreadsheet ID: ${spreadsheetId}`);
+    }
+}
+
+export async function fetchSheetData(spreadsheetId: string, tabName: string) {
+    try {
+        console.log('Fetching sheet data for spreadsheet ID:', spreadsheetId, 'and tab name:', tabName);
         const doc = new GoogleSpreadsheet(spreadsheetId, { apiKey: 'AIzaSyDLDgpWxDN0rD3rX9-SdA1uNZ6yjZnpzsg' });
         await doc.loadInfo();
-        const sheet = doc.sheetsByIndex[13];
+        console.log('Loaded spreadsheet info:', doc.title);
+
+        // Find the sheet by its title
+        const sheet = doc.sheetsByTitle[tabName];
+        if (!sheet) {
+            throw new Error(`Tab "${tabName}" not found in the Google Sheet`);
+        }
+        console.log('Found sheet:', sheet.title);
 
         // Parse date from sheet title
         const testDate = parseSheetDate(sheet.title);
         console.log('Parsed test date:', testDate);
 
+
+
         const rows = await sheet.getRows();
+        console.log('Retrieved rows:', rows.length);
 
         // Transform Google Sheet rows into the format expected by processCSVData
         const formattedData = rows.map(row => ({
@@ -50,11 +78,13 @@ export async function fetchSheetData(spreadsheetId: string) {
             '4th 500': row.get('4th 500') || ''
         }));
 
+        console.log('Formatted data:', formattedData);
+
         // Process the data using the existing CSV handler
         await processCSVData(formattedData, testDate);
         return { formattedData, testDate };
     } catch (error) {
         console.error('Error fetching sheet data:', error);
-        throw error;
+        throw new Error(`Failed to fetch data for tab "${tabName}" in spreadsheet ID: ${spreadsheetId}`);
     }
 }

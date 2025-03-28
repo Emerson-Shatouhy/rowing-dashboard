@@ -1,143 +1,159 @@
 'use client';
 
-import { fetchSheetData } from '@/utils/ingestor/googleSheets';
-import { processCSVData } from '../lib/utils/csvHandler';
-import { useState } from 'react';
+import { fetchSheetData, fetchSheetTabs } from '@/utils/ingestor/googleSheets';
+import { useState, useEffect } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { toast } from 'sonner';
+
+const googleSheets = [
+    'https://docs.google.com/spreadsheets/d/1Mt-AkHULzKs3Dx3wctQL92uzm-oD6VPmzpnUPa6oHsk/edit?gid=2128374416#gid=2128374416',
+    // Add more Google Sheets URLs here
+];
 
 export default function FileUpload() {
     const [status, setStatus] = useState<string>('');
-    const [testDate, setTestDate] = useState<string>('');
-    const [sheetUrl, setSheetUrl] = useState<string>('');
+    const [selectedSheet, setSelectedSheet] = useState<string>(googleSheets[0]); // Selected Google Sheet
+    const [sheetTabs, setSheetTabs] = useState<string[]>([]); // List of tabs in the selected sheet
+    const [selectedTab, setSelectedTab] = useState<string>(''); // Selected tab within the sheet
 
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    useEffect(() => {
+        // Automatically fetch tabs for the first sheet on load
+        const initializeTabs = async () => {
+            toast("Event has been created.")
+
+            try {
+                const initialSheet = googleSheets[0];
+                setSelectedSheet(initialSheet);
+                setStatus('Fetching sheet tabs...');
+                const spreadsheetId = initialSheet.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+                if (!spreadsheetId) {
+                    setStatus('Invalid Google Sheet URL');
+                    setSheetTabs([]);
+                    return;
+                }
+
+                const { tabs } = await fetchSheetTabs(spreadsheetId);
+                setSheetTabs(tabs);
+                setSelectedTab(''); // Reset selected tab
+                setStatus('Sheet tabs loaded. Please select a tab.');
+            } catch (error) {
+                console.error('Error fetching sheet tabs on load:', error);
+                setStatus('Error fetching sheet tabs');
+                setSheetTabs([]);
+            }
+        };
+
+        initializeTabs();
+    }, []);
+
+    const handleGoogleSheetChange = async (value: string) => {
         try {
-            if (!testDate) {
-                setStatus('Please select a test date first');
+            console.log('Google Sheet Changed:', value);
+            setSelectedSheet(value);
+            setStatus('Fetching sheet tabs...');
+            const spreadsheetId = value.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+            console.log('Extracted Spreadsheet ID:', spreadsheetId);
+            if (!spreadsheetId) {
+                setStatus('Invalid Google Sheet URL');
+                setSheetTabs([]);
                 return;
             }
 
-            const file = event.target.files?.[0];
-            if (file) {
-                console.log('File selected:', file.name);
-                setStatus(`Processing file: ${file.name}`);
-
-                const text = await file.text();
-                console.log('File content loaded, processing rows...');
-                const rows = text.split('\n').map(row => {
-                    // Split by comma and trim whitespace
-                    const values = row.split(',').map(value => value.trim());
-                    return {
-                        'Last Name': values[0],
-                        'First Name': values[1],
-                        'Time': values[2],
-                        'Weight Adjusted Time': values[3],
-                        'PR 2k': values[4],
-                        'Avg Split': values[5],
-                        'Goal': values[6],
-                        'Avg Watt': values[7],
-                        'SPM': values[8],
-                        'Weight': values[9],
-                        '1st 500': values[10],
-                        '2nd 500': values[11],
-                        '3rd 500': values[12],
-                        '4th 500': values[13]?.replace('\r', '')
-                        // '1st 1000': values[10],
-                        // '2nd 1000': values[11],
-                        // '3rd 1000': values[12],
-                        // '4th 1000': values[13],
-                        // '5th 1000': values[14]
-                    };
-                });
-
-                console.log(`Found ${rows.length} rows in CSV`);
-                // print the first row of data
-                console.log('First row:', rows[0]);
-
-                if (rows[0]['Last Name'] === 'Last Name') {
-                    rows.shift(); // Remove header row if present
-                }
-
-                console.log(`Processing ${rows.length} data rows (excluding header)`);
-
-                await processCSVData(rows, new Date(testDate));
-                setStatus('File processed successfully!');
-            }
-        } catch (error: unknown | null) {
-            console.error('Error processing file:', error);
-            // setStatus(`Error: ${error.message}`);
+            const { tabs } = await fetchSheetTabs(spreadsheetId);
+            console.log('Fetched Sheet Tabs:', tabs);
+            setSheetTabs(tabs);
+            setStatus('Sheet tabs loaded. Please select a tab.');
+        } catch (error) {
+            console.error('Error fetching sheet tabs:', error);
+            setStatus('Error fetching sheet tabs');
+            setSheetTabs([]);
         }
     };
 
-    const handleGoogleSheet = async () => {
+    const handleTabSelection = async () => {
         try {
-            if (!sheetUrl) {
-                setStatus('Please enter a Google Sheet URL');
+            console.log('Selected Tab:', selectedTab);
+            if (!selectedTab) {
+                setStatus('Please select a tab');
                 return;
             }
 
-            setStatus('Processing Google Sheet...');
+            setStatus('Processing selected tab...');
+            toast.loading('Processing selected tab...');
+            const spreadsheetId = selectedSheet.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+            console.log('Extracted Spreadsheet ID for Tab Processing:', spreadsheetId);
 
-            const spreadsheetId = sheetUrl.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-            if (!spreadsheetId) {
-                setStatus('Invalid Google Sheet URL');
-                return;
-            }
+            const { formattedData, testDate } = await fetchSheetData(spreadsheetId, selectedTab);
 
-            const { formattedData, testDate } = await fetchSheetData(spreadsheetId);
-            setStatus(`Successfully processed ${formattedData.length} rows from sheet for date ${testDate.toLocaleDateString()}`);
+            toast.dismiss();
+            console.log('Processed Data:', formattedData);
+            console.log('Test Date:', testDate);
+            toast.success(`Successfully processed ${formattedData.length} rows from tab "${selectedTab}" for date ${testDate.toLocaleDateString()}`);
+            setStatus(`Successfully processed ${formattedData.length} rows from tab "${selectedTab}" for date ${testDate.toLocaleDateString()}`);
 
         } catch (error) {
-            console.error('Error processing Google Sheet:', error);
-            setStatus('Error processing Google Sheet');
+            console.error('Error processing tab:', error);
+            setStatus('Error processing tab');
         }
     };
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-                <label htmlFor="test-date" className="text-sm font-medium">
-                    Test Date (Only needed for CSV files)
-                </label>
-                <input
-                    id="test-date"
-                    type="date"
-                    value={testDate}
-                    onChange={(e) => setTestDate(e.target.value)}
-                    className="p-2 border rounded"
-                    required
-                />
-            </div>
-            <input
-                type="file"
-                accept=".csv,.txt"
-                onChange={handleFileUpload}
-                className="p-2 border rounded"
-            />
-            <div className="flex flex-col gap-2">
-                <label htmlFor="sheet-url" className="text-sm font-medium">
-                    Google Sheet URL (optional)
-                </label>
-                <input
-                    id="sheet-url"
-                    type="text"
-                    value={sheetUrl}
-                    onChange={(e) => setSheetUrl(e.target.value)}
-                    placeholder="https://docs.google.com/spreadsheets/d/..."
-                    className="p-2 border rounded"
-                />
-                <button
-                    onClick={handleGoogleSheet}
-                    className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    disabled={!sheetUrl}
-                >
-                    Process Google Sheet
-                </button>
-            </div>
-            {status && (
-                <div className="mt-2 p-2 bg-gray-100 rounded">
-                    {status}
+        <div className="w-full">
+            <div className="flex flex-col rounded-md border mb-4 gap-4 p-4 bg-gray-200">
+                <div>
+                    <div className="text-xl font-semibold">Google Sheet Selection</div>
+                    <div className="text-sm text-gray-700">
+                        Select a Google Sheet and tab to process data
+                    </div>
                 </div>
-            )}
+
+                <div className="flex gap-4">
+                    <Select onValueChange={handleGoogleSheetChange} value={selectedSheet}>
+                        <SelectTrigger className="w-[180px] bg-white">
+                            <SelectValue placeholder="-- Select a Google Sheet --" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {googleSheets.map((sheet, index) => (
+                                <SelectItem key={index} value={sheet}>
+                                    {sheet}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="flex gap-4">
+                    <Select onValueChange={(value) => {
+                        console.log('Tab Changed:', value);
+                        setSelectedTab(value);
+                    }} value={selectedTab}>
+                        <SelectTrigger className="w-[180px] bg-white">
+                            <SelectValue placeholder="-- Select a Tab --" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {sheetTabs.length > 0 ? (
+                                sheetTabs.map((tab, index) => (
+                                    <SelectItem key={index} value={tab}>
+                                        {tab}
+                                    </SelectItem>
+                                ))
+                            ) : (
+                                <SelectItem disabled value="no-tabs">
+                                    No tabs available
+                                </SelectItem>
+                            )}
+                        </SelectContent>
+                    </Select>
+                    <button
+                        onClick={handleTabSelection}
+                        className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        disabled={!selectedTab}
+                    >
+                        Process Tab
+                    </button>
+                </div>
+            </div>
+
         </div>
     );
 }

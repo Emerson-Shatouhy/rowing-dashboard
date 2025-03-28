@@ -17,9 +17,9 @@ export default function Stats({ scores }: StatsProps) {
     const calculateAverages = () => {
         if (scores.length === 0) return { avgTime: "0:00.0", avgWAdj: "0:00.0", avgSplit: "0:00.0", avgWeight: 0, avgWatts: 0 };
 
-        const validScores = scores.filter(score => score.totalTime !== null);
-        const validWAdjScores = scores.filter(score => score.weightAdjusted !== null);
-        const validWattsScores = scores.filter(score => score.averageWatts !== null && score.averageWatts !== undefined);
+        const validScores = scores.filter(score => score.totalTime && score.totalTime > 0);
+        const validWAdjScores = scores.filter(score => score.weightAdjusted && score.weightAdjusted > 0);
+        const validWattsScores = scores.filter(score => score.averageWatts && score.averageWatts > 0);
 
         if (validScores.length === 0) return { avgTime: "0:00.0", avgWAdj: "0:00.0", avgSplit: "0:00.0", avgWeight: 0, avgWatts: 0 };
 
@@ -27,7 +27,6 @@ export default function Stats({ scores }: StatsProps) {
         const avgWAdj = Math.round(validWAdjScores.reduce((acc, score) => acc + (score.weightAdjusted || 0), 0) / validWAdjScores.length);
         const avgWatts = validWattsScores.length > 0
             ? Math.round(validWattsScores.reduce((acc, score) => {
-                // Convert string watts to number
                 const watts = typeof score.averageWatts === 'string'
                     ? parseFloat(score.averageWatts)
                     : (score.averageWatts || 0);
@@ -35,17 +34,15 @@ export default function Stats({ scores }: StatsProps) {
             }, 0) / validWattsScores.length)
             : 0;
 
-        // Get all splits from valid scores
         let allSplits: number[] = [];
         validScores.forEach(score => {
             if (score.splits && Array.isArray(score.splits)) {
-                allSplits = [...allSplits, ...score.splits];
-            } else if (score.splits && typeof score.splits === 'string') {
-                allSplits.push(score.splits);
+                allSplits = [...allSplits, ...score.splits.filter(split => split > 0)];
+            } else if (score.splits && typeof score.splits === 'string' && parseFloat(score.splits) > 0) {
+                allSplits.push(parseFloat(score.splits));
             }
         });
 
-        // Calculate average split using the shared utility function
         const avgSplitMs = calculateAverageSplit(allSplits);
         const avgSplit = avgSplitMs ? formatTime(avgSplitMs) : "0:00.0";
 

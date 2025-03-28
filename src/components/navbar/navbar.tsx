@@ -10,6 +10,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Athlete } from "@/lib/types/athlete"
+import { toast } from "sonner"
 
 const navItems = [
     {
@@ -72,7 +73,7 @@ export async function Navbar() {
                                 {athleteData.coxswain && (
                                     <>
                                         <DropdownMenuItem>
-                                            <a href="/new-test">Manage Test</a>
+                                            <a href="/manage-test">Manage Test</a>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <a href="/roster">Manage Rosters</a>

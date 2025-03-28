@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { columns } from "./columns"
 import { DataTable } from './DataTable';
 import Stats from '../Stats/stats';
+import { toast } from 'sonner';
 
 
 interface ScoreListProps {
@@ -101,11 +102,17 @@ export default function ScoreList({ scores }: ScoreListProps) {
                             <SelectValue placeholder="Select Date" />
                         </SelectTrigger>
                         <SelectContent>
-                            {filteredDates.map(date => (
-                                <SelectItem key={date} value={date}>
-                                    {date}
+                            {filteredDates.length > 0 ? (
+                                filteredDates.map(date => (
+                                    <SelectItem key={date} value={date}>
+                                        {date}
+                                    </SelectItem>
+                                ))
+                            ) : (
+                                <SelectItem disabled value="no-dates">
+                                    No dates available
                                 </SelectItem>
-                            ))}
+                            )}
                         </SelectContent>
                     </Select>
                 </div>

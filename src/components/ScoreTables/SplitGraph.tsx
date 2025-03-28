@@ -101,8 +101,8 @@ export function SplitGraph({ splits, athleteName }: SplitGraphProps) {
                         <XAxis dataKey="splitNumber" />
                         <YAxis
                             domain={[
-                                (dataMin: number) => (Math.floor(dataMin / 1000) * 1000) * 0.9,
-                                (dataMax: number) => (Math.ceil(dataMax / 1000) * 1000) * 1.1
+                                (dataMin: number) => (Math.floor(dataMin / 1000) * 1000) - 1000,
+                                (dataMax: number) => (Math.ceil(dataMax / 1000) * 1000) + 1000
                             ]}
                             tickFormatter={(value: number) => formatTime(value)}
                         />
