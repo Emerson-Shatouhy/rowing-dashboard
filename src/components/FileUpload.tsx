@@ -11,6 +11,7 @@ const googleSheets = [
 ];
 
 export default function FileUpload() {
+
     const [status, setStatus] = useState<string>('');
     const [selectedSheet, setSelectedSheet] = useState<string>(googleSheets[0]); // Selected Google Sheet
     const [sheetTabs, setSheetTabs] = useState<string[]>([]); // List of tabs in the selected sheet
@@ -19,8 +20,6 @@ export default function FileUpload() {
     useEffect(() => {
         // Automatically fetch tabs for the first sheet on load
         const initializeTabs = async () => {
-            toast("Event has been created.")
-
             try {
                 const initialSheet = googleSheets[0];
                 setSelectedSheet(initialSheet);
@@ -83,16 +82,22 @@ export default function FileUpload() {
             const spreadsheetId = selectedSheet.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
             console.log('Extracted Spreadsheet ID for Tab Processing:', spreadsheetId);
 
+            if (!selectedTab) {
+                throw new Error('Selected tab is undefined');
+            }
+            // @ts-expect-error convert to string
             const { formattedData, testDate } = await fetchSheetData(spreadsheetId, selectedTab);
 
             toast.dismiss();
             console.log('Processed Data:', formattedData);
             console.log('Test Date:', testDate);
+            console.log('Status', status);
             toast.success(`Successfully processed ${formattedData.length} rows from tab "${selectedTab}" for date ${testDate.toLocaleDateString()}`);
             setStatus(`Successfully processed ${formattedData.length} rows from tab "${selectedTab}" for date ${testDate.toLocaleDateString()}`);
 
         } catch (error) {
             console.error('Error processing tab:', error);
+            toast.error('Error processing tab');
             setStatus('Error processing tab');
         }
     };

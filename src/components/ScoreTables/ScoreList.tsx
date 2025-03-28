@@ -13,7 +13,6 @@ import { useState, useEffect } from 'react';
 import { columns } from "./columns"
 import { DataTable } from './DataTable';
 import Stats from '../Stats/stats';
-import { toast } from 'sonner';
 
 
 interface ScoreListProps {

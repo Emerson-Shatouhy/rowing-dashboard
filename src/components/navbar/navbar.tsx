@@ -10,7 +10,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Athlete } from "@/lib/types/athlete"
-import { toast } from "sonner"
 
 const navItems = [
     {
