@@ -20,19 +20,47 @@ import {
 
 interface AllTimeRecordsClientProps {
     types: Type[];
-    records: Record<number, any[]>;
+    records: Record<number, {
+        id: number;
+        athlete: { firstName: string; lastName: string };
+        totalTime: number;
+        weightAdjusted: number;
+        date: string;
+        spm: number;
+        averageWatts: number;
+        weight: number;
+    }[]>;
 }
 
 export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsClientProps) {
     const [activeTab, setActiveTab] = useState<string>(types[0]?.id.toString() || "1");
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
     // Helper function to validate if a record has valid time
-    const isValidRecord = (record: any) => {
+    const isValidRecord = (record: { totalTime: number | null }) => {
         return record && record.totalTime && record.totalTime > 0;
     };
 
+    const handlePageChange = (newPage: number, totalPages: number) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
+
+    const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setItemsPerPage(Number(e.target.value));
+        setCurrentPage(1); // Reset to first page when changing items per page
+    };
+
+    // Reset to page 1 when switching tabs
+    const handleTabChange = (value: string) => {
+        setActiveTab(value);
+        setCurrentPage(1);
+    };
+
     return (
-        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="bg-gray-200 mb-4">
                 {types.map(type => (
                     <TabsTrigger
@@ -48,6 +76,11 @@ export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsC
             {types.map(type => {
                 // Filter out any entries with DNF (null or zero time)
                 const validRecords = records[type.id]?.filter(isValidRecord) || [];
+
+                // Calculate pagination
+                const totalPages = Math.ceil(validRecords.length / itemsPerPage);
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const paginatedRecords = validRecords.slice(startIndex, startIndex + itemsPerPage);
 
                 return (
                     <TabsContent key={type.id} value={type.id.toString()}>
@@ -69,13 +102,13 @@ export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsC
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {validRecords.length > 0 ? (
-                                        validRecords.map((record, index) => (
+                                    {paginatedRecords.length > 0 ? (
+                                        paginatedRecords.map((record, index) => (
                                             <TableRow
                                                 key={record.id}
                                                 className={index % 2 === 0 ? 'bg-white' : 'bg-gray-200'}
                                             >
-                                                <TableCell className="font-medium text-center">{index + 1}</TableCell>
+                                                <TableCell className="font-medium text-center">{startIndex + index + 1}</TableCell>
                                                 <TableCell>
                                                     {record.athlete.firstName} {record.athlete.lastName}
                                                 </TableCell>
@@ -102,6 +135,75 @@ export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsC
                                     )}
                                 </TableBody>
                             </Table>
+
+                            {validRecords.length > 0 && (
+                                <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-t">
+                                    <div className="text-sm text-gray-700">
+                                        Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+                                        <span className="font-medium">
+                                            {Math.min(startIndex + itemsPerPage, validRecords.length)}
+                                        </span>{" "}
+                                        of <span className="font-medium">{validRecords.length}</span> records
+                                    </div>
+
+                                    <div className="flex items-center space-x-4">
+                                        <div className="flex items-center space-x-2">
+                                            <label htmlFor="itemsPerPage" className="text-sm text-gray-700">
+                                                Items per page:
+                                            </label>
+                                            <select
+                                                id="itemsPerPage"
+                                                value={itemsPerPage}
+                                                onChange={handleItemsPerPageChange}
+                                                className="border rounded px-2 py-1 text-sm"
+                                            >
+                                                <option value="5">5</option>
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                        </div>
+
+                                        <nav className="flex items-center space-x-1">
+                                            <button
+                                                onClick={() => handlePageChange(1, totalPages)}
+                                                disabled={currentPage === 1}
+                                                className="px-2 py-1 text-sm font-medium rounded border 
+                                                    disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                First
+                                            </button>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage - 1, totalPages)}
+                                                disabled={currentPage === 1}
+                                                className="px-2 py-1 text-sm font-medium rounded border
+                                                    disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                &laquo; Prev
+                                            </button>
+                                            <span className="px-2 py-1 text-sm">
+                                                Page {currentPage} of {totalPages || 1}
+                                            </span>
+                                            <button
+                                                onClick={() => handlePageChange(currentPage + 1, totalPages)}
+                                                disabled={currentPage === totalPages || totalPages === 0}
+                                                className="px-2 py-1 text-sm font-medium rounded border
+                                                    disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Next &raquo;
+                                            </button>
+                                            <button
+                                                onClick={() => handlePageChange(totalPages, totalPages)}
+                                                disabled={currentPage === totalPages || totalPages === 0}
+                                                className="px-2 py-1 text-sm font-medium rounded border
+                                                    disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Last
+                                            </button>
+                                        </nav>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </TabsContent>
                 );
