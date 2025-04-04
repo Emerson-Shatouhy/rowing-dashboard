@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { BarChart2, Award } from "lucide-react"
+import { BarChart2, Award, Medal } from "lucide-react"
 import { checkUserClient, getSignedInAthlete } from "@/utils/auth/auth"
 import {
     DropdownMenu,
@@ -19,8 +19,8 @@ const navItems = [
     },
     {
         name: "All Time Records",
-        href: "/personal-records",
-        icon: Award,
+        href: "/allTimeRecords",
+        icon: Medal,
     },
 ]
 
@@ -29,7 +29,6 @@ export async function Navbar() {
     const athleteResponse = await getSignedInAthlete()
     if ('error' in athleteResponse) {
         console.error('Failed to fetch athlete data:', athleteResponse.error)
-        return null
     }
     const athleteData: Athlete = athleteResponse
 

@@ -5,7 +5,6 @@ import { Navbar } from "@/components/navbar/navbar";
 import Image from "next/image";
 import { Toaster } from "@/components/ui/sonner"
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,17 +28,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
         <Navbar />
 
-        {children}
+        <main className="flex-grow">
+          {children}
+        </main>
 
         <Toaster />
 
-        <br />
-
-        <footer>
+        <footer className="mt-auto">
           <div className="flex items-center gap-4 text-sm p-4 border-red-900 w-full bg-red-800 opacity-89 text-white align-bottom">
             Developed by Emerson Shatouhy &apos;25
             <a href="https://github.com/Emerson-Shatouhy/rowing-dashboard" target="_blank" rel="noopener noreferrer" className="flex items-center">

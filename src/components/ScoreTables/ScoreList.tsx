@@ -24,38 +24,57 @@ export default function ScoreList({ scores }: ScoreListProps) {
     const uniqueWorkoutTypes = Array.from(new Set(scores.map(score => score.type.name)));
 
     // State for filters
+    const [selectedYear, setSelectedYear] = useState<string>('');
     const [selectedDate, setSelectedDate] = useState<string>('');
     const [selectedWorkoutType, setSelectedWorkoutType] = useState<string>('');
     const [selectedRows, setSelectedRows] = useState<Scores[]>([]);
 
-    // Get filtered dates based on selected workout type
+    // Get unique years based on scores
+    const uniqueYears = Array.from(new Set(
+        scores.map(score => new Date(score.date).getFullYear().toString())
+    )).sort((a, b) => parseInt(b) - parseInt(a));
+
+    // Get filtered dates based on selected year and workout type
     const filteredDates = Array.from(new Set(
         scores
-            .filter(score => score.type.name === selectedWorkoutType)
+            .filter(score =>
+                (selectedYear === '' || new Date(score.date).getFullYear().toString() === selectedYear) &&
+                score.type.name === selectedWorkoutType
+            )
             .map(score => new Date(score.date).toLocaleDateString())
     )).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
-    // Initialize default workout type only once on mount
+    // Initialize default year and workout type only once on mount
     useEffect(() => {
+        if (uniqueYears.length > 0) {
+            setSelectedYear(uniqueYears[0]);
+        }
         if (uniqueWorkoutTypes.length > 0) {
             setSelectedWorkoutType(uniqueWorkoutTypes[0]);
         }
     }, []);
 
-    // Update selected date when workout type changes, but only if current date is invalid
+    // Update selected date when year or workout type changes, but only if current date is invalid
     useEffect(() => {
-        if (selectedWorkoutType && filteredDates.length > 0) {
+        if (selectedYear && selectedWorkoutType && filteredDates.length > 0) {
             if (!filteredDates.includes(selectedDate)) {
                 setSelectedDate(filteredDates[0]);
             }
         }
-    }, [selectedWorkoutType, filteredDates]);
+    }, [selectedYear, selectedWorkoutType, filteredDates]);
 
     // Filter scores based on selection
     const filteredScores = scores.filter(score =>
+        (selectedYear === '' || new Date(score.date).getFullYear().toString() === selectedYear) &&
         (selectedDate === '' || new Date(score.date).toLocaleDateString() === selectedDate) &&
         (selectedWorkoutType === '' || score.type.name === selectedWorkoutType)
     );
+
+    // Handle year selection change
+    const handleYearChange = (value: string) => {
+        setSelectedRows([]);
+        setSelectedYear(value);
+    };
 
     // Handle date selection change
     const handleDateChange = (value: string) => {
@@ -79,7 +98,7 @@ export default function ScoreList({ scores }: ScoreListProps) {
                 <div>
                     <div className="text-xl font-semibold">Test Selection</div>
                     <div className='text-sm text-gray-700'>
-                        Select workout type and date
+                        Select workout type, year, and date
                     </div>
                 </div>
 
@@ -92,6 +111,18 @@ export default function ScoreList({ scores }: ScoreListProps) {
                             {uniqueWorkoutTypes.map(type => (
                                 <SelectItem key={type} value={type}>
                                     {type}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Select onValueChange={handleYearChange} value={selectedYear}>
+                        <SelectTrigger className="w-[180px] bg-white">
+                            <SelectValue placeholder="Select Year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {uniqueYears.map(year => (
+                                <SelectItem key={year} value={year}>
+                                    {year}
                                 </SelectItem>
                             ))}
                         </SelectContent>
