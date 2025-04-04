@@ -67,8 +67,8 @@ export default async function AllTimeRecords() {
 
         records?.forEach(record => {
             if (!record.athlete) return;
-            if (!record.athlete[0].firstName || !record.athlete[0].lastName) return;
-            const athleteId = record.athlete[0]?.firstName + record.athlete[0]?.lastName;
+            if (!record.athlete.firstName || !record.athlete.lastName) return;
+            const athleteId = record.athlete?.firstName + record.athlete?.lastName;
 
             // Skip if athlete ID is missing or if time is null/zero (DNF)
             if (!athleteId || !record.totalTime) return;
