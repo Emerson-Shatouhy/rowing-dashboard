@@ -35,6 +35,7 @@ export default async function AllTimeRecords() {
         weight: number;
         averageWatts: number;
         spm: number;
+        machineType: string;
     }[]> = {};
 
     for (const type of types as Type[]) {
@@ -50,7 +51,8 @@ export default async function AllTimeRecords() {
                 date,
                 weight,
                 averageWatts,
-                spm
+                spm,
+                machineType
             `)
             .eq('type', type.id)
             .not('totalTime', 'is', null)

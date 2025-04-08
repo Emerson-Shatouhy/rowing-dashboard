@@ -9,7 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Type } from '@/lib/types/scores';
+import { MachineType, Type } from '@/lib/types/scores';
 import { formatTime, formatDate } from '@/utils/time/time';
 import {
     Tabs,
@@ -17,6 +17,16 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { MachineIndicator } from "@/components/indicator/indicator";
+import { formatName } from '@/utils/athlete/athlete';
 
 interface AllTimeRecordsClientProps {
     types: Type[];
@@ -29,6 +39,7 @@ interface AllTimeRecordsClientProps {
         spm: number;
         averageWatts: number;
         weight: number;
+        machineType: MachineType;
     }[]>;
 }
 
@@ -48,8 +59,8 @@ export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsC
         }
     };
 
-    const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setItemsPerPage(Number(e.target.value));
+    const handleItemsPerPageChange = (value: string) => {
+        setItemsPerPage(Number(value));
         setCurrentPage(1); // Reset to first page when changing items per page
     };
 
@@ -93,6 +104,7 @@ export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsC
                                     <TableRow className="bg-gray-300">
                                         <TableHead className="w-12 text-center">#</TableHead>
                                         <TableHead>Athlete</TableHead>
+                                        <TableHead className="text-center">Machine</TableHead>
                                         <TableHead className="text-center">Total Time</TableHead>
                                         <TableHead className="text-center">Wt. Adjusted</TableHead>
                                         <TableHead className="text-center">Date</TableHead>
@@ -110,7 +122,13 @@ export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsC
                                             >
                                                 <TableCell className="font-medium text-center">{startIndex + index + 1}</TableCell>
                                                 <TableCell>
-                                                    {record.athlete.firstName} {record.athlete.lastName}
+                                                    {formatName(
+                                                        record.athlete.firstName,
+                                                        record.athlete.lastName)
+                                                    }
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <MachineIndicator machine={record.machineType} />
                                                 </TableCell>
                                                 <TableCell className="text-center">
                                                     {formatTime(record.totalTime)}
@@ -128,7 +146,7 @@ export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsC
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={8} className="h-24 text-center">
+                                            <TableCell colSpan={9} className="h-24 text-center">
                                                 No records found for this workout type.
                                             </TableCell>
                                         </TableRow>
@@ -148,58 +166,65 @@ export default function AllTimeRecordsClient({ types, records }: AllTimeRecordsC
 
                                     <div className="flex items-center space-x-4">
                                         <div className="flex items-center space-x-2">
-                                            <label htmlFor="itemsPerPage" className="text-sm text-gray-700">
+                                            <span className="text-sm text-gray-700">
                                                 Items per page:
-                                            </label>
-                                            <select
-                                                id="itemsPerPage"
-                                                value={itemsPerPage}
-                                                onChange={handleItemsPerPageChange}
-                                                className="border rounded px-2 py-1 text-sm"
+                                            </span>
+                                            <Select
+                                                value={itemsPerPage.toString()}
+                                                onValueChange={handleItemsPerPageChange}
                                             >
-                                                <option value="5">5</option>
-                                                <option value="10">10</option>
-                                                <option value="25">25</option>
-                                                <option value="50">50</option>
-                                            </select>
+                                                <SelectTrigger className="w-20 h-8">
+                                                    <SelectValue placeholder={itemsPerPage.toString()} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="5">5</SelectItem>
+                                                    <SelectItem value="10">10</SelectItem>
+                                                    <SelectItem value="25">25</SelectItem>
+                                                    <SelectItem value="50">50</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
 
                                         <nav className="flex items-center space-x-1">
-                                            <button
+                                            <Button
                                                 onClick={() => handlePageChange(1, totalPages)}
                                                 disabled={currentPage === 1}
-                                                className="px-2 py-1 text-sm font-medium rounded border 
-                                                    disabled:opacity-50 disabled:cursor-not-allowed"
+                                                variant="outline"
+                                                size="sm"
+                                                className="disabled:opacity-50"
                                             >
                                                 First
-                                            </button>
-                                            <button
+                                            </Button>
+                                            <Button
                                                 onClick={() => handlePageChange(currentPage - 1, totalPages)}
                                                 disabled={currentPage === 1}
-                                                className="px-2 py-1 text-sm font-medium rounded border
-                                                    disabled:opacity-50 disabled:cursor-not-allowed"
+                                                variant="outline"
+                                                size="sm"
+                                                className="disabled:opacity-50"
                                             >
                                                 &laquo; Prev
-                                            </button>
+                                            </Button>
                                             <span className="px-2 py-1 text-sm">
                                                 Page {currentPage} of {totalPages || 1}
                                             </span>
-                                            <button
+                                            <Button
                                                 onClick={() => handlePageChange(currentPage + 1, totalPages)}
                                                 disabled={currentPage === totalPages || totalPages === 0}
-                                                className="px-2 py-1 text-sm font-medium rounded border
-                                                    disabled:opacity-50 disabled:cursor-not-allowed"
+                                                variant="outline"
+                                                size="sm"
+                                                className="disabled:opacity-50"
                                             >
                                                 Next &raquo;
-                                            </button>
-                                            <button
+                                            </Button>
+                                            <Button
                                                 onClick={() => handlePageChange(totalPages, totalPages)}
                                                 disabled={currentPage === totalPages || totalPages === 0}
-                                                className="px-2 py-1 text-sm font-medium rounded border
-                                                    disabled:opacity-50 disabled:cursor-not-allowed"
+                                                variant="outline"
+                                                size="sm"
+                                                className="disabled:opacity-50"
                                             >
                                                 Last
-                                            </button>
+                                            </Button>
                                         </nav>
                                     </div>
                                 </div>

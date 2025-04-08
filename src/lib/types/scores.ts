@@ -13,6 +13,7 @@ export type Scores = {
     averageWatts: number,
     weight: number,
     weightAdjusted: number, // milliseconds
+    machineType: MachineType,
 }
 
 export type Type = {
@@ -20,3 +21,4 @@ export type Type = {
     name: string,
     description: string
 }
+export type MachineType = "static" | "sliders" | "berg" | "dynamic" | "other";

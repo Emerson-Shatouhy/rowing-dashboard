@@ -13,12 +13,13 @@ export default async function Home() {
   const client = await createClient();
   const { data: scores, error } = await client.from('scores')
     .select('*, athlete:athlete(*),type:type(*)'
-
-    ) as { data: Scores[] | null, error: unknown };
+    )
+    .order('date', { ascending: false }) as { data: Scores[] | null, error: unknown };
   if (error) {
     console.error('Error fetching scores:', error);
     return <div>Error fetching scores</div>;
   }
+  // console.log('Fetched scores:', scores);
 
   return (
     <div className="flex flex-col w-full gap-4 p-4">

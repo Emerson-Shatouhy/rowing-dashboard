@@ -10,6 +10,8 @@ import {
     countSplits,
     calculateAverageSplit
 } from "@/utils/time/time"
+import { MachineIndicator } from "../indicator/indicator"
+import { formatName } from "@/utils/athlete/athlete"
 
 export const columns: ColumnDef<Scores>[] = [
     {
@@ -42,10 +44,33 @@ export const columns: ColumnDef<Scores>[] = [
         id: "name",
         header: "Name",
         cell: ({ row }) => (
-            <div className="text-center">
-                {`${row.original.athlete.firstName} ${row.original.athlete.lastName}`}
+            <div className="min-w-24 text-center flex items-center max-w-32 truncate">
+                <span className="truncate">
+                    {formatName(
+                        row.original.athlete.firstName,
+                        row.original.athlete.lastName)
+                    }
+                </span>
             </div>
         ),
+    },
+    {
+        id: "type",
+        header: "Machine Type",
+        cell: ({ row }) => (
+            <div className="text-center">
+                <MachineIndicator machine={row.original.machineType} />
+
+            </div>
+        ),
+        sortingFn: (rowA, rowB) => {
+            const a = rowA.original.machineType;
+            const b = rowB.original.machineType;
+            if (a === null && b === null) return 0;
+            if (a === null) return 1;
+            if (b === null) return -1;
+            return a.localeCompare(b);
+        }
     },
     {
         id: "totalTime",

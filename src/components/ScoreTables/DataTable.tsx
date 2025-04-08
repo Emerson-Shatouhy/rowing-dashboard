@@ -109,6 +109,11 @@ export function DataTable<TData, TValue>({
         });
     }, [expandedRows, table]);
 
+    // Auto sort by totalTime when data changes
+    React.useEffect(() => {
+        setSorting([{ id: 'totalTime', desc: false }]);
+    }, [data]);
+
     React.useEffect(() => {
         setExpandedRows(new Set());
     }, [data]);
