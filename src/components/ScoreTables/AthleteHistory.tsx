@@ -75,7 +75,7 @@ export function AthleteHistory({ athleteId, typeId, currentScoreId }: AthleteHis
         )
     }
 
-    const fastestTime = historicalScores.length > 0 
+    const fastestTime = historicalScores.length > 0
         ? Math.min(...historicalScores.map(score => score.totalTime).filter(time => time != null))
         : null;
 
@@ -85,30 +85,27 @@ export function AthleteHistory({ athleteId, typeId, currentScoreId }: AthleteHis
             <div className="flex flex-wrap gap-2">
                 {historicalScores.slice(0, 8).map((score) => {
                     const isFastest = fastestTime && score.totalTime === fastestTime;
-                    
+
                     return (
                         <div
                             key={score.id}
-                            className={`flex flex-col px-3 py-2 rounded-lg text-xs transition-colors ${
-                                isFastest 
-                                    ? 'bg-green-100 border border-green-300 hover:bg-green-150' 
-                                    : 'bg-gray-100 hover:bg-gray-200'
-                            }`}
+                            className={`flex flex-col px-3 py-2 rounded-lg text-xs transition-colors ${isFastest
+                                ? 'bg-green-100 border border-green-300 hover:bg-green-150'
+                                : 'bg-gray-100 hover:bg-gray-200'
+                                }`}
                         >
                             <div className="flex items-center gap-2">
-                                <span className={`font-mono font-medium ${
-                                    isFastest ? 'text-green-800' : ''
-                                }`}>
+                                <span className={`font-mono font-medium ${isFastest ? 'text-green-800' : ''
+                                    }`}>
                                     {formatTime(score.totalTime)}
                                 </span>
                                 {score.machineType && (
                                     <MachineIndicator machine={score.machineType} />
                                 )}
                             </div>
-                            <span className={`text-xs mt-1 ${
-                                isFastest ? 'text-green-600' : 'text-gray-500'
-                            }`}>
-                                {score.date && new Date(score.date).toLocaleDateString('en-US', {
+                            <span className={`text-xs mt-1 ${isFastest ? 'text-green-600' : 'text-gray-500'
+                                }`}>
+                                {score.dates && new Date(score.dates.date).toLocaleDateString('en-US', {
                                     month: 'short',
                                     day: 'numeric',
                                     year: '2-digit'
