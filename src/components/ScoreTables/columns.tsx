@@ -227,7 +227,7 @@ export const columns: ColumnDef<Scores>[] = [
         size: 150,
         header: "Splits",
         cell: ({ row }) => (
-            <div className="text-center text-xs max-w-32 truncate" title={formatSplits(row.original.splits)}>
+            <div className="text-center text-xs" title={formatSplits(row.original.splits)}>
                 {formatSplits(row.original.splits)}
             </div>
         ),
