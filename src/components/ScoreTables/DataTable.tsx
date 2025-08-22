@@ -119,68 +119,76 @@ export function DataTable<TData, TValue>({
     }, [data]);
 
     return (
-        <div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader className="bg-gray-300">
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id} className="text-center bg-gray-300">
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row, i) => {
-                                const isExpanded = expandedRows.has(row.id)
-                                // Get athlete data from the row
-                                const rowData = row.original as any;
-                                const athleteName = rowData?.athlete ?
-                                    `${rowData.athlete.firstName} ${rowData.athlete.lastName}` :
-                                    "Athlete";
+        <div className="w-full">
+            <div className="rounded-md border overflow-hidden">
+                <div className="overflow-x-auto">
+                    <Table className="min-w-full">
+                        <TableHeader className="bg-gray-300">
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        return (
+                                            <TableHead 
+                                                key={header.id} 
+                                                className="text-center bg-gray-300 px-2 py-3 text-xs sm:text-sm whitespace-nowrap"
+                                            >
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )}
+                                            </TableHead>
+                                        )
+                                    })}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row, i) => {
+                                    const isExpanded = expandedRows.has(row.id)
+                                    // Get athlete data from the row
+                                    const rowData = row.original as any;
+                                    const athleteName = rowData?.athlete ?
+                                        `${rowData.athlete.firstName} ${rowData.athlete.lastName}` :
+                                        "Athlete";
 
-                                return (
-                                    <React.Fragment key={row.id}>
-                                        <TableRow
-                                            data-state={row.getIsSelected() && "selected"}
-                                            className={i % 2 === 0 ? 'bg-white' : 'bg-gray-200'}
-                                        >
-                                            {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id}>
-                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                        {isExpanded && (
-                                            <ExpandedRow
-                                                rowData={rowData}
-                                                athleteName={athleteName}
-                                                columnsLength={columns.length}
-                                            />
-                                        )}
-                                    </React.Fragment>
-                                )
-                            })
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                                    return (
+                                        <React.Fragment key={row.id}>
+                                            <TableRow
+                                                data-state={row.getIsSelected() && "selected"}
+                                                className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}
+                                            >
+                                                {row.getVisibleCells().map((cell) => (
+                                                    <TableCell 
+                                                        key={cell.id}
+                                                        className="px-2 py-3 text-xs sm:text-sm"
+                                                    >
+                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                            {isExpanded && (
+                                                <ExpandedRow
+                                                    rowData={rowData}
+                                                    athleteName={athleteName}
+                                                    columnsLength={columns.length}
+                                                />
+                                            )}
+                                        </React.Fragment>
+                                    )
+                                })
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                                        No results.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
         </div>
     )

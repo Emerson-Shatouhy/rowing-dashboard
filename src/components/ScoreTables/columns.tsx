@@ -16,6 +16,7 @@ import { formatName } from "@/utils/athlete/athlete"
 export const columns: ColumnDef<Scores>[] = [
     {
         id: "select",
+        size: 40,
         header: ({ table }) => (
             <Checkbox
                 checked={
@@ -43,9 +44,10 @@ export const columns: ColumnDef<Scores>[] = [
     {
         id: "name",
         header: "Name",
+        size: 120,
         cell: ({ row }) => (
-            <div className="min-w-24 text-center flex items-center max-w-32 truncate">
-                <span className="truncate">
+            <div className="w-full text-center flex items-center justify-center truncate px-1">
+                <span className="truncate text-sm">
                     {formatName(
                         row.original.athlete.firstName,
                         row.original.athlete.lastName)
@@ -56,7 +58,8 @@ export const columns: ColumnDef<Scores>[] = [
     },
     {
         id: "type",
-        header: "Machine Type",
+        header: "Machine",
+        size: 70,
         cell: ({ row }) => (
             <div className="text-center">
                 <MachineIndicator machine={row.original.machineType} />
@@ -75,20 +78,23 @@ export const columns: ColumnDef<Scores>[] = [
     {
         id: "totalTime",
         accessorKey: "totalTime",
+        size: 90,
         header: ({ column }) => {
             return (
                 <div className="text-center">
                     <Button
                         variant="ghost"
+                        size="sm"
+                        className="text-xs h-6 px-2"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Total Time
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                        Time
+                        <ArrowUpDown className="ml-1 h-3 w-3" />
                     </Button>
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-center">{formatTime(row.original.totalTime)}</div>,
+        cell: ({ row }) => <div className="text-center text-xs">{formatTime(row.original.totalTime)}</div>,
         sortingFn: (rowA, rowB) => {
             const a = rowA.original.totalTime;
             const b = rowB.original.totalTime;
@@ -101,18 +107,21 @@ export const columns: ColumnDef<Scores>[] = [
     {
         id: "weight",
         accessorKey: "weight",
+        size: 60,
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
+                    size="sm"
+                    className="text-xs h-6 px-1"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Weight
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Wt
+                    <ArrowUpDown className="ml-1 h-3 w-3" />
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="text-center">{row.original.weight}</div>,
+        cell: ({ row }) => <div className="text-center text-xs">{row.original.weight}</div>,
         sortingFn: (rowA, rowB) => {
             const a = rowA.original.weight;
             const b = rowB.original.weight;
@@ -125,18 +134,21 @@ export const columns: ColumnDef<Scores>[] = [
     {
         id: "weightAdjusted",
         accessorKey: "weightAdjusted",
+        size: 85,
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
+                    size="sm"
+                    className="text-xs h-6 px-1"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Weight Adjusted
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Wt Adj
+                    <ArrowUpDown className="ml-1 h-3 w-3" />
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="text-center">{formatTime(row.original.weightAdjusted)}</div>,
+        cell: ({ row }) => <div className="text-center text-xs">{formatTime(row.original.weightAdjusted)}</div>,
         sortingFn: (rowA, rowB) => {
             const a = rowA.original.weightAdjusted;
             const b = rowB.original.weightAdjusted;
@@ -149,19 +161,21 @@ export const columns: ColumnDef<Scores>[] = [
     {
         id: "averageWatts",
         accessorKey: "average",
+        size: 70,
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
-                    className="text-center"
+                    size="sm"
+                    className="text-xs h-6 px-1"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Average Watts
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Watts
+                    <ArrowUpDown className="ml-1 h-3 w-3" />
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="text-center">{row.original.averageWatts}</div>,
+        cell: ({ row }) => <div className="text-center text-xs">{row.original.averageWatts}</div>,
         sortingFn: (rowA, rowB) => {
             const a = rowA.original.averageWatts;
             const b = rowB.original.averageWatts;
@@ -174,21 +188,23 @@ export const columns: ColumnDef<Scores>[] = [
     {
         id: "averageSplit",
         accessorKey: "averageSplit",
+        size: 80,
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
-                    className="text-center"
+                    size="sm"
+                    className="text-xs h-6 px-1"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Average Split
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Split
+                    <ArrowUpDown className="ml-1 h-3 w-3" />
                 </Button>
             )
         },
         cell: ({ row }) => {
             const averageSplit = calculateAverageSplit(row.original.splits);
-            return <div className="text-center">{formatTime(averageSplit)}</div>;
+            return <div className="text-center text-xs">{formatTime(averageSplit)}</div>;
         },
         sortingFn: (rowA, rowB) => {
             const totalTimeA = rowA.original.totalTime;
@@ -208,37 +224,48 @@ export const columns: ColumnDef<Scores>[] = [
     {
         id: "splits",
         accessorKey: "splits",
+        size: 150,
         header: "Splits",
-        cell: ({ row }) => <div className="text-center">{formatSplits(row.original.splits)}</div>,
+        cell: ({ row }) => (
+            <div className="text-center text-xs max-w-32 truncate" title={formatSplits(row.original.splits)}>
+                {formatSplits(row.original.splits)}
+            </div>
+        ),
     },
     {
         id: "spm",
         accessorKey: "spm",
+        size: 50,
         header: ({ column }) => {
             return (
                 <div className="text-center">
                     <Button
                         variant="ghost"
+                        size="sm"
+                        className="text-xs h-6 px-1"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         SPM
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                        <ArrowUpDown className="ml-1 h-3 w-3" />
                     </Button>
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-center">{row.original.spm}</div>,
+        cell: ({ row }) => <div className="text-center text-xs">{row.original.spm}</div>,
     },
     {
         id: "expand",
+        size: 60,
         header: "",
         cell: ({ row }) => (
             <div className="text-center">
                 <Button
                     variant="ghost"
+                    size="sm"
+                    className="text-xs h-6 px-1"
                     onClick={() => row.toggleExpanded()}
                 >
-                    {row.getIsExpanded() ? "Hide" : "Show"}
+                    {row.getIsExpanded() ? "−" : "+"}
                 </Button>
             </div>
         ),

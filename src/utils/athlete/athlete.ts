@@ -1,18 +1,32 @@
 
-// Name for formating names to remove the *BERG* from the name and *SLIDERS* from the name
-export const formatName = (firstName: string, lastName: string) => {
-    // Check if the first name contains "BERG" and remove it
-    let formattedFirstName = firstName;
+import { MachineType } from '@/lib/types/scores';
 
+// Enhanced function to extract both clean names and machine type
+export const parseAthleteNameAndMachine = (firstName: string, lastName: string) => {
+    let cleanFirstName = firstName.trim();
+    let machineType: MachineType = "static"; // default
+
+    // Check for machine type indicators in the first name
     if (firstName.includes("*BERG*")) {
-        // Remove the "*BERG*" from the first name
-        formattedFirstName = firstName.replace("*BERG*", "");
-    } else if (firstName.includes("SLIDERS")) {
-        formattedFirstName = firstName.replace("*SLIDERS*", "");
-    } else if (firstName.includes("DYNAMIC")) {
-        formattedFirstName = firstName.replace("*DYNAMIC*", "");
+        cleanFirstName = firstName.replace("*BERG*", "").trim();
+        machineType = "berg";
+    } else if (firstName.includes("*SLIDERS*")) {
+        cleanFirstName = firstName.replace("*SLIDERS*", "").trim();
+        machineType = "sliders";
+    } else if (firstName.includes("*DYNAMIC*")) {
+        cleanFirstName = firstName.replace("*DYNAMIC*", "").trim();
+        machineType = "dynamic";
     }
 
+    return {
+        firstName: cleanFirstName,
+        lastName: lastName.trim(),
+        machineType
+    };
+};
 
-    return `${formattedFirstName} ${lastName}`;
-}
+// Legacy function for backward compatibility
+export const formatName = (firstName: string, lastName: string) => {
+    const { firstName: cleanFirstName, lastName: cleanLastName } = parseAthleteNameAndMachine(firstName, lastName);
+    return `${cleanFirstName} ${cleanLastName}`;
+};

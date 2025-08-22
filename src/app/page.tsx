@@ -1,29 +1,23 @@
-import { createClient } from '@/utils/supabase/server';
-import { Scores } from '@/lib/types/scores';
-import ScoreList from '../components/ScoreTables/ScoreList';
 import { checkUserClient } from '@/utils/auth/auth';
-import { redirect } from 'next/navigation';
+import { getTestTypes } from '@/lib/data/scores';
+import TieredScoreList from '../components/ScoreTables/TieredScoreList';
 
 export default async function Home() {
   const user = await checkUserClient()
   if ('error' in user) {
-    redirect('/login')
+    // redirect('/login')
   }
 
-  const client = await createClient();
-  const { data: scores, error } = await client.from('scores')
-    .select('*, athlete:athlete(*),type:type(*)'
-    )
-    .order('date', { ascending: false }) as { data: Scores[] | null, error: unknown };
-  if (error) {
-    console.error('Error fetching scores:', error);
-    return <div>Error fetching scores</div>;
+  try {
+    const types = await getTestTypes();
+    
+    return (
+      <div className="flex flex-col w-full gap-4 p-4">
+        <TieredScoreList initialTypes={types} />
+      </div>
+    );
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return <div>Error loading data</div>;
   }
-  // console.log('Fetched scores:', scores);
-
-  return (
-    <div className="flex flex-col w-full gap-4 p-4">
-      <ScoreList scores={scores || []} />
-    </div>
-  );
 }
